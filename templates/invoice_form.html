@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Form</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 700px;
+            margin-top: 50px;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Invoice</h1>
+    <form id="invoiceForm">
+        <label>Invoice Number:</label>
+        <input type="text" id="invoice_number" required><br><br>
+
+        <label>Date:</label>
+        <input type="date" id="date" required><br><br>
+
+        <label>Customer Name:</label>
+        <input type="text" id="customer_name" required><br><br>
+
+        <h3>Invoice Details</h3>
+        <div id="details">
+            <label>Description:</label>
+            <input type="text" class="description" required>
+            <label>Quantity:</label>
+            <input type="number" class="quantity" required>
+            <label>Price:</label>
+            <input type="number" class="price" required><br><br>
+        </div>
+        <button type="button" onclick="addDetail()">Add Another Item</button><br><br>
+        <button type="button" onclick="submitInvoice()">Submit Invoice</button>
+        <button type="button" onclick="redirectToUpdate()">Update Invoice</button>
+        <button type="button" onclick="redirectToView()">View All Invoice</button>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function addDetail() {
+            let detail = document.getElementById("details").cloneNode(true);
+            document.getElementById("invoiceForm").appendChild(detail);
+        }
+
+        async function submitInvoice() {
+            let data = {
+                invoice_number: document.getElementById("invoice_number").value,
+                date: document.getElementById("date").value,
+                customer_name: document.getElementById("customer_name").value,
+                details: Array.from(document.querySelectorAll("#details")).map(detail => ({
+                    description: detail.querySelector(".description").value,
+                    quantity: parseInt(detail.querySelector(".quantity").value),
+                    price: parseFloat(detail.querySelector(".price").value)
+                }))
+            };
+
+            let response = await fetch("/api/invoices/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert("Invoice created successfully!");
+            } else {
+                alert("Failed to create invoice.");
+            }
+        }
+        function redirectToUpdate() {
+            window.location.href = "/api/update";
+        }
+        function redirectToView() {
+            window.location.href = "/api/invoices";
+        }
+    </script>
+</body>
+</html>
